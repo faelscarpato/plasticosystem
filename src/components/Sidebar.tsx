@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { 
@@ -15,7 +16,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
-  FileText
+  FileText,
+  Calendar
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -23,10 +25,11 @@ interface NavItemProps {
   label: string;
   active?: boolean;
   collapsed?: boolean;
+  path: string;
   onClick?: () => void;
 }
 
-const NavItem = ({ icon, label, active, collapsed, onClick }: NavItemProps) => {
+const NavItem = ({ icon, label, active, collapsed, path, onClick }: NavItemProps) => {
   return (
     <button
       className={cn(
@@ -43,7 +46,46 @@ const NavItem = ({ icon, label, active, collapsed, onClick }: NavItemProps) => {
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [activeModule, setActiveModule] = useState('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determinar o módulo ativo com base na URL
+  const getActiveModule = () => {
+    const path = location.pathname;
+    if (path === '/') {
+      return 'dashboard';
+    }
+    // Extrair o nome do módulo da URL
+    const match = path.match(/\/modules\/([^/]+)/);
+    return match ? match[1] : 'dashboard';
+  };
+
+  const [activeModule, setActiveModule] = useState(getActiveModule());
+
+  // Atualizar o módulo ativo quando a URL muda
+  useEffect(() => {
+    setActiveModule(getActiveModule());
+  }, [location.pathname]);
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
+  const modules = [
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/' },
+    { id: 'vendas', label: 'Vendas', icon: <ShoppingCart size={20} />, path: '/modules/vendas' },
+    { id: 'engenharia', label: 'Engenharia', icon: <FileText size={20} />, path: '/modules/engenharia' },
+    { id: 'compras', label: 'Compras', icon: <Package size={20} />, path: '/modules/compras' },
+    { id: 'estoque', label: 'Estoque', icon: <Layers size={20} />, path: '/modules/estoque' },
+    { id: 'pcp', label: 'PCP', icon: <BarChart3 size={20} />, path: '/modules/pcp' },
+    { id: 'producao', label: 'Produção', icon: <Settings size={20} />, path: '/modules/producao' },
+    { id: 'qualidade', label: 'Qualidade', icon: <BarChart3 size={20} />, path: '/modules/qualidade' },
+    { id: 'manutencao', label: 'Manutenção', icon: <Wrench size={20} />, path: '/modules/manutencao' },
+    { id: 'logistica', label: 'Logística', icon: <Truck size={20} />, path: '/modules/logistica' },
+    { id: 'financeiro', label: 'Financeiro', icon: <DollarSign size={20} />, path: '/modules/financeiro' },
+    { id: 'rh', label: 'RH', icon: <Users size={20} />, path: '/modules/rh' },
+    { id: 'controle-presenca', label: 'Presença', icon: <Calendar size={20} />, path: '/modules/controle-presenca' }
+  ];
 
   return (
     <div
@@ -69,90 +111,17 @@ const Sidebar = () => {
       </div>
 
       <div className="flex flex-col gap-1 p-2 flex-1 overflow-y-auto scrollbar-hide">
-        <NavItem
-          icon={<LayoutDashboard size={20} />}
-          label="Dashboard"
-          active={activeModule === 'dashboard'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('dashboard')}
-        />
-        <NavItem
-          icon={<ShoppingCart size={20} />}
-          label="Vendas"
-          active={activeModule === 'sales'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('sales')}
-        />
-        <NavItem
-          icon={<FileText size={20} />}
-          label="Engenharia"
-          active={activeModule === 'engineering'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('engineering')}
-        />
-        <NavItem
-          icon={<Package size={20} />}
-          label="Compras"
-          active={activeModule === 'purchases'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('purchases')}
-        />
-        <NavItem
-          icon={<Layers size={20} />}
-          label="Estoque"
-          active={activeModule === 'stock'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('stock')}
-        />
-        <NavItem
-          icon={<BarChart3 size={20} />}
-          label="PCP"
-          active={activeModule === 'pcp'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('pcp')}
-        />
-        <NavItem
-          icon={<Settings size={20} />}
-          label="Produção"
-          active={activeModule === 'production'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('production')}
-        />
-        <NavItem
-          icon={<BarChart3 size={20} />}
-          label="Qualidade"
-          active={activeModule === 'quality'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('quality')}
-        />
-        <NavItem
-          icon={<Wrench size={20} />}
-          label="Manutenção"
-          active={activeModule === 'maintenance'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('maintenance')}
-        />
-        <NavItem
-          icon={<Truck size={20} />}
-          label="Logística"
-          active={activeModule === 'logistics'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('logistics')}
-        />
-        <NavItem
-          icon={<DollarSign size={20} />}
-          label="Financeiro"
-          active={activeModule === 'financial'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('financial')}
-        />
-        <NavItem
-          icon={<Users size={20} />}
-          label="RH"
-          active={activeModule === 'hr'}
-          collapsed={collapsed}
-          onClick={() => setActiveModule('hr')}
-        />
+        {modules.map(module => (
+          <NavItem
+            key={module.id}
+            icon={module.icon}
+            label={module.label}
+            active={activeModule === module.id}
+            collapsed={collapsed}
+            path={module.path}
+            onClick={() => handleNavigation(module.path)}
+          />
+        ))}
       </div>
 
       <div className="p-2 border-t border-sidebar-border">
@@ -161,7 +130,8 @@ const Sidebar = () => {
           label="Configurações"
           active={activeModule === 'settings'}
           collapsed={collapsed}
-          onClick={() => setActiveModule('settings')}
+          path="/settings"
+          onClick={() => navigate('/settings')}
         />
       </div>
     </div>

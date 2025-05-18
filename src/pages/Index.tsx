@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 import SuperDashboard from '@/components/dashboard/SuperDashboard';
@@ -14,81 +15,113 @@ import {
   Wrench, 
   Truck, 
   DollarSign, 
-  Users 
+  Users,
+  Calendar
 } from 'lucide-react';
 import ModuleCard from '@/components/modules/ModuleCard';
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'main' | 'dashboard'>('dashboard');
+  const [currentView, setCurrentView] = useState<'main' | 'dashboard'>('main');
+  const navigate = useNavigate();
+
+  // Efeito para verificar se foi redirecionado de outro módulo
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'dashboard') {
+      setCurrentView('dashboard');
+    }
+  }, []);
   
   const modules = [
     { 
       title: 'Vendas', 
       description: 'Gestão de clientes, propostas e pedidos', 
       icon: ShoppingCart,
-      color: 'bg-intranet-900'
+      color: 'bg-intranet-900',
+      path: '/modules/vendas'
     },
     { 
       title: 'Engenharia', 
       description: 'Projetos e especificações técnicas', 
       icon: FileText,
-      color: 'bg-intranet-800'
+      color: 'bg-intranet-800',
+      path: '/modules/engenharia'
     },
     { 
       title: 'Compras', 
       description: 'Gestão de fornecedores e pedidos', 
       icon: Package,
-      color: 'bg-intranet-700'
+      color: 'bg-intranet-700',
+      path: '/modules/compras'
     },
     { 
       title: 'Estoque', 
       description: 'Controle de materiais e produtos', 
       icon: Layers,
-      color: 'bg-intranet-600'
+      color: 'bg-intranet-600',
+      path: '/modules/estoque'
     },
     { 
       title: 'PCP', 
       description: 'Planejamento e controle da produção', 
       icon: BarChart3,
-      color: 'bg-intranet-900'
+      color: 'bg-intranet-900',
+      path: '/modules/pcp'
     },
     { 
       title: 'Produção', 
       description: 'Apontamentos e monitoramento', 
       icon: Settings,
-      color: 'bg-intranet-800'
+      color: 'bg-intranet-800',
+      path: '/modules/producao'
     },
     { 
       title: 'Qualidade', 
       description: 'Inspeções e não-conformidades', 
       icon: BarChart,
-      color: 'bg-intranet-700'
+      color: 'bg-intranet-700',
+      path: '/modules/qualidade'
     },
     { 
       title: 'Manutenção', 
       description: 'Preventiva, preditiva e corretiva', 
       icon: Wrench,
-      color: 'bg-intranet-600'
+      color: 'bg-intranet-600',
+      path: '/modules/manutencao'
     },
     { 
       title: 'Logística', 
       description: 'Expedição e entregas', 
       icon: Truck,
-      color: 'bg-intranet-900'
+      color: 'bg-intranet-900',
+      path: '/modules/logistica'
     },
     { 
       title: 'Financeiro', 
       description: 'Contas, fluxo de caixa e custos', 
       icon: DollarSign,
-      color: 'bg-intranet-800'
+      color: 'bg-intranet-800',
+      path: '/modules/financeiro'
     },
     { 
       title: 'RH', 
       description: 'Gestão de pessoas e treinamentos', 
       icon: Users,
-      color: 'bg-intranet-700'
+      color: 'bg-intranet-700',
+      path: '/modules/rh'
+    },
+    { 
+      title: 'Controle de Presença', 
+      description: 'Registro e relatórios de presença', 
+      icon: Calendar,
+      color: 'bg-intranet-600',
+      path: '/modules/controle-presenca'
     }
   ];
+
+  const handleModuleClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -112,7 +145,7 @@ const Index = () => {
                     description={module.description}
                     icon={module.icon}
                     color={module.color}
-                    onClick={() => setCurrentView('dashboard')}
+                    onClick={() => handleModuleClick(module.path)}
                   />
                 ))}
               </div>
